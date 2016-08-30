@@ -1,9 +1,12 @@
 use r2d2::Pool;
+#[cfg(feature = "postgresql")]
 use r2d2_postgres::PostgresConnectionManager;
 use r2d2::Config;
+#[cfg(feature = "postgresql")]
 use r2d2_postgres::SslMode;
 use config::DbConfig;
 use database::{Database, DatabaseDDL, DatabaseDev};
+#[cfg(feature = "postgresql")]
 use platform::Postgres;
 #[cfg(feature = "sqlite")]
 use platform::Sqlite;
@@ -22,6 +25,7 @@ use r2d2_sqlite::SqliteConnectionManager;
 
 /// the sql builder for each of the database platform
 pub enum Platform {
+    #[cfg(feature = "postgresql")]
     Postgres(Postgres),
     #[cfg(feature = "sqlite")]
     Sqlite(Sqlite),
@@ -33,6 +37,7 @@ pub enum Platform {
 impl Platform {
     pub fn as_ref(&self) -> &Database {
         match *self {
+            #[cfg(feature = "postgresql")]
             Platform::Postgres(ref pg) => pg,
             #[cfg(feature = "sqlite")]
             Platform::Sqlite(ref lite) => lite,
@@ -44,6 +49,7 @@ impl Platform {
 
     pub fn as_ddl(&self) -> &DatabaseDDL {
         match *self {
+            #[cfg(feature = "postgresql")]
             Platform::Postgres(ref pg) => pg,
             #[cfg(feature = "sqlite")]
             Platform::Sqlite(ref lite) => lite,
@@ -55,6 +61,7 @@ impl Platform {
 
     pub fn as_dev(&self) -> &DatabaseDev {
         match *self {
+            #[cfg(feature = "postgresql")]
             Platform::Postgres(ref pg) => pg,
             #[cfg(feature = "sqlite")]
             Platform::Sqlite(ref lite) => lite,
@@ -71,6 +78,7 @@ impl Deref for Platform{
 	fn deref(&self)->&Self::Target{
 		debug!("using deref...");
         match *self {
+            #[cfg(feature = "postgresql")]
             Platform::Postgres(ref pg) => pg,
             #[cfg(feature = "sqlite")]
             Platform::Sqlite(ref lite) => lite,
@@ -86,6 +94,7 @@ impl Deref for Platform{
 /// Postgres, Sqlite uses r2d2 connection manager,
 /// Mysql has its own connection pooling
 pub enum ManagedPool {
+    #[cfg(feature = "postgresql")]
     Postgres(Pool<PostgresConnectionManager>),
     #[cfg(feature = "sqlite")]
     Sqlite(Pool<SqliteConnectionManager>),
@@ -103,6 +112,7 @@ impl ManagedPool {
             Some(config) => {
                 let platform: &str = &config.platform;
                 match platform {
+                    #[cfg(feature = "postgresql")]
                     "postgres" => {
                         let manager = try!(PostgresConnectionManager::new(url, SslMode::None));
                         debug!("Creating a connection with a pool size of {}", pool_size);
@@ -146,6 +156,7 @@ impl ManagedPool {
     /// a conection is created here
     pub fn connect(&self) -> Result<Platform, DbError> {
         match *self {
+            #[cfg(feature = "postgresql")]
             ManagedPool::Postgres(ref pool) => {
                 match pool.get() {
                     Ok(conn) => {

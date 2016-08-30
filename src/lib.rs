@@ -5,6 +5,7 @@
 //!
 
 extern crate rustc_serialize;
+#[cfg(feature = "postgresql")]
 extern crate postgres;
 #[cfg(feature = "sqlite")]
 extern crate rusqlite;
@@ -15,6 +16,7 @@ extern crate chrono;
 extern crate regex;
 extern crate url;
 extern crate r2d2;
+#[cfg(feature = "postgresql")]
 extern crate r2d2_postgres;
 #[cfg(feature = "sqlite")]
 extern crate r2d2_sqlite;

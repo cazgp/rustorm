@@ -10,7 +10,9 @@ use query::Range;
 use std::error::Error;
 use std::fmt;
 use r2d2;
+#[cfg(feature = "postgresql")]
 use postgres::error::Error as PgError;
+#[cfg(feature = "postgresql")]
 use postgres::error::ConnectError as PgConnectError;
 #[cfg(feature = "mysql")]
 use mysql::error::MyError;
@@ -111,19 +113,20 @@ impl From<RegexError> for DbError {
     }
 }
 
-
+#[cfg(feature = "postgresql")]
 impl From<PgError> for DbError {
     fn from(err: PgError) -> Self {
         DbError::PlatformError(From::from(err))
     }
 }
 
-
+#[cfg(feature = "postgresql")]
 impl From<PgConnectError> for DbError {
     fn from(err: PgConnectError) -> Self {
         DbError::PlatformError(From::from(err))
     }
 }
+
 #[cfg(feature = "mysql")]
 impl From<MyError> for DbError {
     fn from(err: MyError) -> Self {
